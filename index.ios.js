@@ -1,52 +1,88 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- * @flow
- */
-
 import React, { Component } from 'react';
 import {
   AppRegistry,
   StyleSheet,
   Text,
-  View
+  View,
 } from 'react-native';
 
+import { Button, SocialIcon } from 'react-native-elements'
+
+import Login from 'react-native-login';
+
+const config = {
+  url: 'https://auth.no-mad.net/auth',
+  realm: 'test',
+  client_id: 'app1',
+  redirect_uri: 'https://success.no-mad.net/success.html',
+  appsite_uri: 'https://app.no-mad.net/app.html',
+  kc_idp_hint: 'facebook',
+};
+
 export default class LoginExample extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      tokens: null,
+    };
+  }
+
+  componentWillMount() {
+    Login.tokens().then(tokens => this.setState({tokens})).catch(() => this.setState({tokens: null}));
+  }
+
+  onLogin() {
+    Login.start(config).then(tokens => {
+      this.setState({tokens: tokens});
+    }).catch(() => this.setState({tokens: null}));
+  }
+
+  onLogout() {
+    Login.end();
+    this.setState({tokens: null});
+  }
+
   render() {
+    return this.state.tokens ? this.renderAppScreen() : this.renderLoginScreen();
+  }
+
+  renderAppScreen() {
+    const details = Login.decodeToken(this.state.tokens.id_token);
+
     return (
       <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.ios.js
-        </Text>
-        <Text style={styles.instructions}>
-          Press Cmd+R to reload,{'\n'}
-          Cmd+D or shake for dev menu
-        </Text>
+        <View style={styles.profile}>
+          <Text style={styles.text}>Welcome!</Text>
+          <Text style={styles.text}>{details.name}</Text>
+          <Text style={styles.text}>{details.email}</Text>
+        </View>
+        <Button borderRadius={30} backgroundColor="#5cb85c" title='Logout' onPress={() => this.onLogout()} />
+      </View>
+    );
+  }
+
+  renderLoginScreen() {
+    return (
+      <View style={styles.container}>
+        <SocialIcon title='Sign In With Facebook' button type='facebook' onPress={() => this.onLogin()} />
       </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  container: {
+  profile: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5FCFF',
   },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
+  text: {
+    fontSize: 16,
   },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
+  container: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    margin: 32,
   },
 });
 
