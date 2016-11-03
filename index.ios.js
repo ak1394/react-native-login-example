@@ -12,8 +12,8 @@ import Login from 'react-native-login';
 
 const config = {
   url: 'https://auth.no-mad.net/auth',
-  realm: 'test',
-  client_id: 'app1',
+  realm: 'ReactAppRealm',
+  client_id: 'reactapp',
   redirect_uri: 'https://success.no-mad.net/success.html',
   appsite_uri: 'https://app.no-mad.net/app.html',
   kc_idp_hint: 'facebook',
